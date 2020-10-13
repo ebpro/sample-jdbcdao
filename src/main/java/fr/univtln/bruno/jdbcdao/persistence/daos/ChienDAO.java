@@ -20,9 +20,8 @@ public class ChienDAO extends AbstractDAO<Chien> {
 
     @Override
     protected Chien fromResultSet(ResultSet resultSet) throws SQLException {
-        PersonneDAO personneDAO = new PersonneDAO();
         Chien chien = null;
-        try {
+        try (PersonneDAO personneDAO = new PersonneDAO()) {
             chien = Chien.builder()
                     .id(resultSet.getLong("ID"))
                     .nom(resultSet.getString("NOM"))

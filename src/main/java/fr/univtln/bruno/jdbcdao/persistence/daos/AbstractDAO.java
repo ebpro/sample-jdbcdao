@@ -102,7 +102,7 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
 
     public void update() throws DataAccessException {
         try {
-            persistPS.executeUpdate();
+            updatePS.executeUpdate();
         } catch (SQLException throwables) {
             throw new DataAccessException(throwables.getLocalizedMessage());
         }

@@ -41,9 +41,8 @@ public class App {
         loadProperties("app.properties");
         configureLogger();
 
-        try {
-            //First we get the DAA for persons
-            PersonneDAO personneDAO = new PersonneDAO();
+        try ( //First we get the DAA for persons
+              PersonneDAO personneDAO = new PersonneDAO()) {
 
             //We use it to remove all data in the relation
             personneDAO.clean();
@@ -84,26 +83,22 @@ public class App {
 
 
             //Now we illustrate joins
-            ChienDAO chienDAO = new ChienDAO();
-            chienDAO.clean();
+            try (ChienDAO chienDAO = new ChienDAO()) {
+                chienDAO.clean();
 
-            //We create a master and its dog
-            Personne leMaitre = Personne.builder().nom("Le").prenom("Maitre").build();
-            leMaitre = personneDAO.persist(leMaitre);
-            Chien leChien = Chien.builder().nom("Rex").maitre(leMaitre).build();
-            leChien = chienDAO.persist(leChien);
-            log.info("Le Chien: " + leChien.toString());
-            Chien toujourLeChien = chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new);
-            log.info("Toujours le chien: " + toujourLeChien.toString());
+                //We create a master and its dog
+                Personne leMaitre = Personne.builder().nom("Le").prenom("Maitre").build();
+                leMaitre = personneDAO.persist(leMaitre);
+                Chien leChien = Chien.builder().nom("Rex").maitre(leMaitre).build();
+                leChien = chienDAO.persist(leChien);
+                log.info("Le Chien: " + leChien.toString());
+                Chien toujourLeChien = chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new);
+                log.info("Toujours le chien: " + toujourLeChien.toString());
 
-            //Notice that master deletion removes the master to the dog
-            personneDAO.remove(leMaitre);
-            log.info("Le chien sans maitre: " + chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new));
-
-
-            //We close the connections
-            personneDAO.close();
-            chienDAO.close();
+                //Notice that master deletion removes the master to the dog
+                personneDAO.remove(leMaitre);
+                log.info("Le chien sans maitre: " + chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new));
+            }
 
         } catch (DataAccessException throwables) {
             throwables.printStackTrace();

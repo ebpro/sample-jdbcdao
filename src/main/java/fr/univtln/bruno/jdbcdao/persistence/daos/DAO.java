@@ -12,7 +12,7 @@ import java.util.Optional;
  *
  * @param <E> is the type of entities managed by the DAO
  */
-public interface DAO<E extends Entity> {
+public interface DAO<E extends Entity> extends AutoCloseable {
     /**
      * Finds and returns an entity by id in the database.
      * Note the usage of Optional to avoir Null Pointer Exception (NPE).
