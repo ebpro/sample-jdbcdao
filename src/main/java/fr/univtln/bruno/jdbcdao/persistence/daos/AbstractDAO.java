@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 @Log
 public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
@@ -28,8 +29,8 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
             _findAllPS = _connection.prepareStatement("SELECT * FROM " + getTableName());
             _persistPS = _connection.prepareStatement(persistPS, Statement.RETURN_GENERATED_KEYS);
             _updatePS = _connection.prepareStatement(updatePS);
-
         } catch (SQLException throwables) {
+            log.log(Level.SEVERE, "Erreur de création de la DAO: "+throwables.getMessage());
             new DataAccessException(throwables.getLocalizedMessage());
         }
         this.connection = _connection;
@@ -42,7 +43,20 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
 
     public abstract String getTableName();
 
-    protected abstract E fromResultSet(ResultSet resultSet) throws SQLException;
+    public E persist() throws DataAccessException {
+        long id = -1;
+        try {
+            persistPS.executeUpdate();
+            ResultSet rs = persistPS.getGeneratedKeys();
+            if (rs.next()) {
+                id = rs.getLong(1);
+                log.fine("Generated PK = " + id);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getLocalizedMessage());
+        }
+        return find(id).orElseThrow(NotFoundException::new);
+    }
 
     public Optional<E> find(long id) throws DataAccessException {
         E entity = null;
@@ -56,6 +70,20 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
         }
         return Optional.ofNullable(entity);
     }
+
+    @Override
+    public List<E> findAll() throws DataAccessException {
+        List<E> entityList = new ArrayList<>();
+        try {
+            ResultSet rs = findAllPS.executeQuery();
+            while (rs.next()) entityList.add(fromResultSet(rs));
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getLocalizedMessage());
+        }
+        return entityList;
+    }
+
+    protected abstract E fromResultSet(ResultSet resultSet) throws SQLException;
 
     public void remove(long id) throws DataAccessException {
         try {
@@ -74,44 +102,17 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
     }
 
     @Override
-    public List<E> findAll() throws DataAccessException {
-        List<E> entityList = new ArrayList<>();
+    public void close() throws DataAccessException {
         try {
-            ResultSet rs = findAllPS.executeQuery();
-            while (rs.next()) entityList.add(fromResultSet(rs));
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getLocalizedMessage());
-        }
-        return entityList;
-    }
-
-    public E persist() throws DataAccessException {
-        long id = -1;
-        try {
-            persistPS.executeUpdate();
-            ResultSet rs = persistPS.getGeneratedKeys();
-            if (rs.next()) {
-                id = rs.getLong(1);
-                log.fine("Generated PK = " + id);
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getLocalizedMessage());
-        }
-        return find(id).orElseThrow(NotFoundException::new);
-    }
-
-    public void update() throws DataAccessException {
-        try {
-            updatePS.executeUpdate();
+            connection.close();
         } catch (SQLException throwables) {
             throw new DataAccessException(throwables.getLocalizedMessage());
         }
     }
 
-    @Override
-    public void close() throws DataAccessException {
+    public void update() throws DataAccessException {
         try {
-            connection.close();
+            updatePS.executeUpdate();
         } catch (SQLException throwables) {
             throw new DataAccessException(throwables.getLocalizedMessage());
         }

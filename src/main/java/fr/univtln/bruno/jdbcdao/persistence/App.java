@@ -18,15 +18,15 @@ import java.util.Properties;
 
 @Log
 public class App {
-    public static Properties properties = new Properties();
+    protected static final Properties properties = new Properties();
 
-    private static void loadProperties(String propFileName) throws IOException {
+    static void loadProperties(String propFileName) throws IOException {
         InputStream inputstream = App.class.getClassLoader().getResourceAsStream(propFileName);
         if (inputstream == null) throw new FileNotFoundException();
         properties.load(inputstream);
     }
 
-    private static void configureLogger() {
+    static void configureLogger() {
         //Regarder src/main/ressources/logging.properties pour fixer le niveau de log
         String path;
         path = Objects.requireNonNull(App.class
