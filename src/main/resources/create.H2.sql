@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS PERSONNE;
 create table PERSONNE
 (
     ID     LONG auto_increment,
@@ -5,6 +6,14 @@ create table PERSONNE
     PRENOM VARCHAR not null
 );
 
+alter table PERSONNE
+    add constraint PERSONNE_PK
+        primary key (ID);
+
+create unique index PERSONNE_ID_UINDEX
+    on PERSONNE (ID);
+
+DROP TABLE IF EXISTS CHIEN;
 create table CHIEN
 (
     ID        LONG auto_increment,
@@ -22,10 +31,5 @@ alter table CHIEN
     add constraint CHIEN_PK
         primary key (ID);
 
-create unique index PERSONNE_ID_UINDEX
-    on PERSONNE (ID);
 
-alter table PERSONNE
-    add constraint PERSONNE_PK
-        primary key (ID);
 
