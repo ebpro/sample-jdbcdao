@@ -10,7 +10,7 @@ import java.sql.SQLException;
 @Log
 public class PersonneDAO extends AbstractDAO<Personne> {
 
-    public PersonneDAO() {
+    public PersonneDAO() throws DataAccessException {
         super("INSERT INTO PERSONNE(NOM,PRENOM) VALUES (?,?)",
                 "UPDATE PERSONNE SET NOM=?, PRENOM=? WHERE ID=?");
     }

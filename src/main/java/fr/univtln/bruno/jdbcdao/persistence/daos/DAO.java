@@ -24,12 +24,22 @@ public interface DAO<E extends Entity> extends AutoCloseable {
     Optional<E> find(long id) throws DataAccessException;
 
     /**
-     * Return the complete list of entities managed by the DAO from the database.
+     * Return a given page entities managed by the DAO from the database.
      *
      * @return the list of entities managed by the DAO.
      * @throws DataAccessException If there is a data access error (see message).
      */
-    List<E> findAll() throws DataAccessException;
+    Page<E> findAll(int pageNumber, int pageSize) throws DataAccessException;
+
+    /**
+     * Return the first page of entities managed by the DAO from the database.
+     *
+     * @return the list of entities managed by the DAO.
+     * @throws DataAccessException If there is a data access error (see message).
+     */
+    default Page<E> findAll() throws DataAccessException {
+        return findAll(1, 100);
+    }
 
     /**
      * Persists a new entity in the database.

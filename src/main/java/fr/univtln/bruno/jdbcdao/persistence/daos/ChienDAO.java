@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class ChienDAO extends AbstractDAO<Chien> {
 
-    public ChienDAO() {
+    public ChienDAO() throws DataAccessException {
         super("INSERT INTO CHIEN(NOM,MAITRE_ID) VALUES (?,?)",
                 "UPDATE CHIEN SET NOM=?,MAITRE_ID=? WHERE ID=?");
     }
