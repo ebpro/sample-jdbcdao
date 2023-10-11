@@ -11,10 +11,7 @@ import lombok.extern.java.Log;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 @Log
 public class App {
@@ -38,10 +35,11 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
+        // We load the application configuration
         loadProperties("app.properties");
         configureLogger();
 
-        try ( //First we get the DAA for persons
+        try ( //First we get the DAO for persons
               PersonneDAO personneDAO = new PersonneDAO()) {
 
             //We use it to remove all data in the relation
@@ -52,19 +50,19 @@ public class App {
             log.info(" p1 persisted " + p1);
 
             //and a list of persons
-            personneDAO.persist(Arrays.asList(
-                    Personne.builder().nom("C").prenom("D").build(),
-                    Personne.builder().nom("E").prenom("F").build(),
-                    Personne.builder().nom("G").prenom("H").build(),
-                    Personne.builder().nom("I").prenom("J").build(),
-                    Personne.builder().nom("K").prenom("L").build())
+            personneDAO.persist(List.of(
+                    Personne.builder().nom("Durand").prenom("Jacques").build(),
+                    Personne.builder().nom("Dupond").prenom("Paul").build(),
+                    Personne.builder().nom("Martin").prenom("Pierre").build(),
+                    Personne.builder().nom("Laforge").prenom("Henry").build(),
+                    Personne.builder().nom("Laforge").prenom("Marie").build())
             );
 
-            //We get persons by id (including a missing one).
+            //We get two persons by id (an existing one and a missing one).
             long[] ids = {p1.getId(), -1};
             for (long id : ids) {
                 Optional<Personne> optionalPersonne = personneDAO.find(id);
-                log.info("Personne " + id + " : " + (optionalPersonne.isPresent() ? optionalPersonne.get() : "MISSING !"));
+                log.info("Personne %d : %s".formatted(id,(optionalPersonne.isPresent() ? optionalPersonne.get() : "MISSING !")));
             }
 
             //we update a person
@@ -81,7 +79,6 @@ public class App {
             //We get all the persons
             log.info(personneDAO.findAll().toString());
 
-
             //Now we illustrate joins
             try (ChienDAO chienDAO = new ChienDAO()) {
                 chienDAO.clean();
@@ -95,7 +92,7 @@ public class App {
                 Chien toujourLeChien = chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new);
                 log.info("Toujours le chien: " + toujourLeChien.toString());
 
-                //Notice that master deletion removes the master to the dog
+                //Notice that master deletion removes the master from the dog
                 personneDAO.remove(leMaitre);
                 log.info("Le chien sans maitre: " + chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new));
             }

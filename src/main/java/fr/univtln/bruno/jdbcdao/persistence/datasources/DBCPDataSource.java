@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DBCPDataSource {
 
-    private static BasicDataSource ds = new BasicDataSource();
+    private static final BasicDataSource ds = new BasicDataSource();
 
     static {
         ds.setUrl(App.getProperty("jdbcdao.datasource.url"));
