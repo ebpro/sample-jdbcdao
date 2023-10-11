@@ -18,7 +18,7 @@ public class StartH2 {
             App.loadProperties("app.properties");
             App.configureLogger();
 
-            Server server = Server.createTcpServer("-ifNotExists").start();
+            Server server = Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers","-pgAllowOthers","-ifNotExists","-baseDir","/tmp/db").start();
             try (Connection connection = DBCPDataSource.getConnection()) {
                 RunScript.execute(connection,
                         new InputStreamReader(StartH2.class.getClassLoader().getResourceAsStream("create.H2.sql")));
