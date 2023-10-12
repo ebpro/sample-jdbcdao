@@ -1,6 +1,5 @@
 package fr.univtln.bruno.jdbcdao.persistence.datasources;
 
-import fr.univtln.bruno.jdbcdao.persistence.App;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
@@ -11,9 +10,9 @@ public class DBCPDataSource {
     private static final BasicDataSource ds = new BasicDataSource();
 
     static {
-        ds.setUrl(App.getProperty("jdbcdao.datasource.url"));
-        ds.setUsername(App.getProperty("jdbcdao.datasource.username"));
-        ds.setPassword(App.getProperty("jdbcdao.datasource.password"));
+        ds.setUrl(System.getProperty("jdbcdao.datasource.url"));
+        ds.setUsername(System.getProperty("jdbcdao.datasource.username"));
+        ds.setPassword(System.getProperty("jdbcdao.datasource.password"));
 
         ds.setMinIdle(5);
         ds.setMaxIdle(10);

@@ -15,12 +15,12 @@ import java.util.*;
 
 @Log
 public class App {
-    protected static final Properties properties = new Properties();
-
     static void loadProperties(String propFileName) throws IOException {
+        Properties properties = new Properties();
         InputStream inputstream = App.class.getClassLoader().getResourceAsStream(propFileName);
         if (inputstream == null) throw new FileNotFoundException();
         properties.load(inputstream);
+        System.setProperties(properties);
     }
 
     static void configureLogger() {
@@ -100,9 +100,5 @@ public class App {
         } catch (DataAccessException throwables) {
             throwables.printStackTrace();
         }
-    }
-
-    public static String getProperty(String s) {
-        return properties.getProperty(s);
     }
 }

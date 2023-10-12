@@ -1,6 +1,7 @@
 package fr.univtln.bruno.jdbcdao.persistence;
 
 import fr.univtln.bruno.jdbcdao.persistence.datasources.DBCPDataSource;
+import fr.univtln.bruno.jdbcdao.persistence.exceptions.DataAccessException;
 import lombok.extern.java.Log;
 import org.h2.tools.RunScript;
 import org.h2.tools.Server;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 
 @Log
 public class StartH2 {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DataAccessException {
         try {
             App.loadProperties("app.properties");
             App.configureLogger();
@@ -27,7 +28,7 @@ public class StartH2 {
                 RunScript.execute(connection,
                         new InputStreamReader(StartH2.class.getClassLoader().getResourceAsStream("create.H2.sql")));
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataAccessException(e.getLocalizedMessage());
             }
     }
 }

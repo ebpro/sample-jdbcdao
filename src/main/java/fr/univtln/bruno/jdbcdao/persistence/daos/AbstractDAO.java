@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 @Log
 public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
-    public static final int DEFAULT_PAGE_SIZE = 100;
+    public static final int DEFAULT_PAGE_SIZE = 10;
     protected final Connection connection;
     protected final PreparedStatement persistPS;
     protected final PreparedStatement updatePS;
@@ -72,7 +72,8 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
         } catch (SQLException e) {
             throw new DataAccessException(e.getLocalizedMessage());
         }
-        return Optional.ofNullable(entity);
+        if (entity==null) throw new NotFoundException();
+        return Optional.of(entity);
     }
 
     @Override

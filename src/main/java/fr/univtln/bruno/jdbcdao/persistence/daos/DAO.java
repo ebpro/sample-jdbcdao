@@ -38,7 +38,7 @@ public interface DAO<E extends Entity> extends AutoCloseable {
      * @throws DataAccessException If there is a data access error (see message).
      */
     default Page<E> findAll() throws DataAccessException {
-        return findAll(1, 100);
+        return findAll(1, AbstractDAO.DEFAULT_PAGE_SIZE);
     }
 
     /**
