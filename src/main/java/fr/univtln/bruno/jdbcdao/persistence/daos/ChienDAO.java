@@ -25,8 +25,12 @@ public class ChienDAO extends AbstractDAO<Chien> {
             chien = Chien.builder()
                     .id(resultSet.getLong("ID"))
                     .nom(resultSet.getString("NOM"))
-                    .maitre(personneDAO.find(resultSet.getLong("MAITRE_ID")).orElse(null))
                     .build();
+
+            long maitreId = resultSet.getLong("MAITRE_ID");
+            if (!resultSet.wasNull())
+            chien.setMaitre(personneDAO.find(maitreId).orElse(null));
+
         } catch (DataAccessException e) {
             e.printStackTrace();
         }

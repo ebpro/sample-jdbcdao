@@ -11,28 +11,13 @@ import lombok.extern.java.Log;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 
 @Log
 public class App {
-    static void loadProperties(String propFileName) throws IOException {
-        Properties properties = new Properties();
-        InputStream inputstream = App.class.getClassLoader().getResourceAsStream(propFileName);
-        if (inputstream == null) throw new FileNotFoundException();
-        properties.load(inputstream);
-        System.setProperties(properties);
-    }
-
-    static void configureLogger() {
-        //Regarder src/main/ressources/logging.properties pour fixer le niveau de log
-        String path;
-        path = Objects.requireNonNull(App.class
-                .getClassLoader()
-                .getResource("logging.properties"))
-                .getFile();
-        System.setProperty("java.util.logging.config.file", path);
-    }
-
     public static void main(String[] args) throws IOException {
 
         // We load the application configuration
@@ -50,19 +35,17 @@ public class App {
             log.info(" p1 persisted " + p1);
 
             //and a list of persons
-            personneDAO.persist(List.of(
-                    Personne.builder().nom("Durand").prenom("Jacques").build(),
-                    Personne.builder().nom("Dupond").prenom("Paul").build(),
-                    Personne.builder().nom("Martin").prenom("Pierre").build(),
-                    Personne.builder().nom("Laforge").prenom("Henry").build(),
-                    Personne.builder().nom("Laforge").prenom("Marie").build())
-            );
+            personneDAO.persist(List.of(Personne.builder().nom("Durand").prenom("Jacques").build(), Personne.builder().nom("Dupond").prenom("Paul").build(), Personne.builder().nom("Martin").prenom("Pierre").build(), Personne.builder().nom("Laforge").prenom("Henry").build(), Personne.builder().nom("Laforge").prenom("Marie").build()));
 
             //We get two persons by id (an existing one and a missing one).
             long[] ids = {p1.getId(), -1};
             for (long id : ids) {
-                Optional<Personne> optionalPersonne = personneDAO.find(id);
-                log.info("Personne %d : %s".formatted(id,(optionalPersonne.isPresent() ? optionalPersonne.get() : "MISSING !")));
+                try {
+                    Optional<Personne> optionalPersonne = personneDAO.find(id);
+                    log.info("Personne %d : %s".formatted(id, (optionalPersonne.isPresent() ? optionalPersonne.get() : "MISSING !")));
+                } catch (NotFoundException e) {
+                    log.severe("Personne %d not found".formatted(id));
+                }
             }
 
             //we update a person
@@ -94,11 +77,30 @@ public class App {
 
                 //Notice that master deletion removes the master from the dog
                 personneDAO.remove(leMaitre);
-                log.info("Le chien sans maitre: " + chienDAO.find(leChien.getId()).orElseThrow(NotFoundException::new));
+                try {
+                    log.info("Le chien sans maitre: " + chienDAO.find(leChien.getId()).get());
+                } catch (NotFoundException e) {
+                    log.severe("Personne %d not found".formatted(leChien.getId()));
+                }
             }
 
         } catch (DataAccessException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    static void loadProperties(String propFileName) throws IOException {
+        Properties properties = new Properties();
+        InputStream inputstream = App.class.getClassLoader().getResourceAsStream(propFileName);
+        if (inputstream == null) throw new FileNotFoundException();
+        properties.load(inputstream);
+        System.setProperties(properties);
+    }
+
+    static void configureLogger() {
+        //Regarder src/main/ressources/logging.properties pour fixer le niveau de log
+        String path;
+        path = Objects.requireNonNull(App.class.getClassLoader().getResource("logging.properties")).getFile();
+        System.setProperty("java.util.logging.config.file", path);
     }
 }
